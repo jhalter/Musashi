@@ -1406,6 +1406,76 @@ static void fpgen_rm_reg(uint16 w2)
 			USE_CYCLES(109);
 			break;
 		}
+		case 0x02:		// FSINH
+			REG_FP[dst] = double_to_fx80(sinh(fx80_to_double(source)));
+			SET_CONDITION_CODES(REG_FP[dst]);
+			USE_CYCLES(400);
+			break;
+		case 0x06:		// FLOGNP1
+			REG_FP[dst] = double_to_fx80(log1p(fx80_to_double(source)));
+			SET_CONDITION_CODES(REG_FP[dst]);
+			USE_CYCLES(400);
+			break;
+		case 0x08:		// FETOXM1
+			REG_FP[dst] = double_to_fx80(expm1(fx80_to_double(source)));
+			SET_CONDITION_CODES(REG_FP[dst]);
+			USE_CYCLES(400);
+			break;
+		case 0x09:		// FTANH
+			REG_FP[dst] = double_to_fx80(tanh(fx80_to_double(source)));
+			SET_CONDITION_CODES(REG_FP[dst]);
+			USE_CYCLES(400);
+			break;
+		case 0x0a:		// FATAN
+			REG_FP[dst] = double_to_fx80(atan(fx80_to_double(source)));
+			SET_CONDITION_CODES(REG_FP[dst]);
+			USE_CYCLES(400);
+			break;
+		case 0x0c:		// FASIN
+			REG_FP[dst] = double_to_fx80(asin(fx80_to_double(source)));
+			SET_CONDITION_CODES(REG_FP[dst]);
+			USE_CYCLES(400);
+			break;
+		case 0x0d:		// FATANH
+			REG_FP[dst] = double_to_fx80(atanh(fx80_to_double(source)));
+			SET_CONDITION_CODES(REG_FP[dst]);
+			USE_CYCLES(400);
+			break;
+		case 0x0f:		// FTAN
+			REG_FP[dst] = double_to_fx80(tan(fx80_to_double(source)));
+			SET_CONDITION_CODES(REG_FP[dst]);
+			USE_CYCLES(400);
+			break;
+		case 0x10:		// FETOX
+			REG_FP[dst] = double_to_fx80(exp(fx80_to_double(source)));
+			SET_CONDITION_CODES(REG_FP[dst]);
+			USE_CYCLES(400);
+			break;
+		case 0x11:		// FTWOTOX
+			REG_FP[dst] = double_to_fx80(exp2(fx80_to_double(source)));
+			SET_CONDITION_CODES(REG_FP[dst]);
+			USE_CYCLES(400);
+			break;
+		case 0x12:		// FTENTOX
+			REG_FP[dst] = double_to_fx80(pow(10.0, fx80_to_double(source)));
+			SET_CONDITION_CODES(REG_FP[dst]);
+			USE_CYCLES(400);
+			break;
+		case 0x14:		// FLOGN
+			REG_FP[dst] = double_to_fx80(log(fx80_to_double(source)));
+			SET_CONDITION_CODES(REG_FP[dst]);
+			USE_CYCLES(400);
+			break;
+		case 0x15:		// FLOG10
+			REG_FP[dst] = double_to_fx80(log10(fx80_to_double(source)));
+			SET_CONDITION_CODES(REG_FP[dst]);
+			USE_CYCLES(400);
+			break;
+		case 0x16:		// FLOG2
+			REG_FP[dst] = double_to_fx80(log2(fx80_to_double(source)));
+			SET_CONDITION_CODES(REG_FP[dst]);
+			USE_CYCLES(400);
+			break;
 		case 0x18:		// FABS
 		{
 			REG_FP[dst] = source;
@@ -1414,6 +1484,11 @@ static void fpgen_rm_reg(uint16 w2)
 			USE_CYCLES(3);
 			break;
 		}
+		case 0x19:		// FCOSH
+			REG_FP[dst] = double_to_fx80(cosh(fx80_to_double(source)));
+			SET_CONDITION_CODES(REG_FP[dst]);
+			USE_CYCLES(400);
+			break;
 		case 0x1a:		// FNEG
 		{
 			REG_FP[dst] = source;
@@ -1422,6 +1497,11 @@ static void fpgen_rm_reg(uint16 w2)
 			USE_CYCLES(3);
 			break;
 		}
+		case 0x1c:		// FACOS
+			REG_FP[dst] = double_to_fx80(acos(fx80_to_double(source)));
+			SET_CONDITION_CODES(REG_FP[dst]);
+			USE_CYCLES(400);
+			break;
 		case 0xe:		// SIN
 			REG_FP[dst] = double_to_fx80(sin(fx80_to_double(source)));
 	    	SET_CONDITION_CODES(REG_FP[dst]); // JFF
