@@ -1971,6 +1971,9 @@ static inline void m68ki_exception_bus_error(void)
 
 extern int cpu_log_enabled;
 
+extern void m68040_fpu_op0(void);
+extern void m68040_fpu_op1(void);
+
 /* Exception for A-Line instructions */
 static inline void m68ki_exception_1010(void)
 {
@@ -1980,6 +1983,12 @@ static inline void m68ki_exception_1010(void)
 					 m68ki_cpu_names[CPU_TYPE], ADDRESS_68K(REG_PPC), REG_IR,
 					 m68ki_disassemble_quick(ADDRESS_68K(REG_PPC))));
 #endif
+
+	/* Allow the illegal instruction callback to intercept A-line traps.
+	 * This is used by the AD Player to dispatch Mac Toolbox A-line traps
+	 * to native C implementations instead of taking the 1010 exception. */
+	if (m68ki_illg_callback(REG_IR))
+		return;
 
 	sr = m68ki_init_exception();
 	m68ki_stack_frame_0000(REG_PPC, sr, EXCEPTION_1010);
@@ -1993,6 +2002,20 @@ static inline void m68ki_exception_1010(void)
 static inline void m68ki_exception_1111(void)
 {
 	uint sr;
+
+	/* Intercept FPU instructions (coprocessor ID 001 = 68881/68882) and
+	 * route to the hardware FPU emulation.  On a real 68000, these would
+	 * cause Line-F exceptions handled by an OS-level FPU emulation package.
+	 * We shortcut this by calling Musashi's FPU handler directly, which
+	 * emulates the 68881 instruction set regardless of CPU type. */
+	if ((REG_IR & 0xfe00) == 0xf200) {
+		m68040_fpu_op0();
+		return;
+	}
+	if ((REG_IR & 0xff00) == 0xf300) {
+		m68040_fpu_op1();
+		return;
+	}
 
 #if M68K_LOG_1010_1111 == M68K_OPT_ON
 	M68K_DO_LOG_EMU((M68K_LOG_FILEHANDLE "%s at %08x: called 1111 instruction %04x (%s)\n",
