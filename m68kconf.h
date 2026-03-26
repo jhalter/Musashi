@@ -215,7 +215,7 @@
  * instruction.
  */
 #ifndef M68K_INSTRUCTION_HOOK
-#define M68K_INSTRUCTION_HOOK       M68K_OPT_OFF
+#define M68K_INSTRUCTION_HOOK       M68K_OPT_SPECIFY_HANDLER
 #define M68K_INSTRUCTION_CALLBACK(pc) ad3_instruction_trace(pc)
 extern void ad3_instruction_trace(unsigned int pc);
 #endif
