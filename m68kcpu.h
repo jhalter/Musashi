@@ -1985,7 +1985,7 @@ static inline void m68ki_exception_1010(void)
 #endif
 
 	/* Allow the illegal instruction callback to intercept A-line traps.
-	 * This is used by the AD Player to dispatch Mac Toolbox A-line traps
+	 * This is used by Phosphor to dispatch Mac Toolbox A-line traps
 	 * to native C implementations instead of taking the 1010 exception. */
 	if (m68ki_illg_callback(REG_IR))
 		return;
