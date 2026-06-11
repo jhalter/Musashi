@@ -353,7 +353,13 @@ static inline int TEST_CONDITION(int condition)
 		case 0x1f:
 		case 0x0f:		return 1;					// True
 
-		default:		fatalerror("M68kFPU: test_condition: unhandled condition %02X\n", condition);
+		default:
+			/* Conditions 0x20-0x3F are IEEE non-aware versions of 0x00-0x1F.
+			 * They differ only in NaN signaling behavior which we don't
+			 * need to emulate. Recurse with the low 5 bits. */
+			if (condition >= 0x20 && condition <= 0x3f)
+				return TEST_CONDITION(condition & 0x1f);
+			fatalerror("M68kFPU: test_condition: unhandled condition %02X\n", condition);
 	}
 
 	return r;
@@ -1842,10 +1848,27 @@ static void fscc(void)
   {
   case 0:  // fscc Dx
     {
-      // If the specified floating-point condition is true, sets the byte integer operand at
-      // the destination to TRUE (all ones); otherwise, sets the byte to FALSE (all zeros).
-      
       REG_D[REG_IR & 7] = (REG_D[REG_IR & 7] & 0xFFFFFF00) | v;
+      break;
+    }
+    case 1: // fscc (An)
+    {
+      int reg = REG_IR & 7;
+      m68ki_write_8(REG_A[reg], v);
+      break;
+    }
+    case 2: // fscc (An)+
+    {
+      int reg = REG_IR & 7;
+      m68ki_write_8(REG_A[reg], v);
+      REG_A[reg] += 1;
+      break;
+    }
+    case 3: // fscc -(An)
+    {
+      int reg = REG_IR & 7;
+      REG_A[reg] -= 1;
+      m68ki_write_8(REG_A[reg], v);
       break;
     }
     case 5: // (disp,Ax)
@@ -1856,9 +1879,20 @@ static void fscc(void)
     break;
     }
     
+    case 6: // fscc d(An,Dn)
+    {
+      uint32 ext = m68ki_read_imm_16();
+      int reg = REG_IR & 7;
+      int idx_reg = (ext >> 12) & 7;
+      int idx_size = (ext & 0x0800) ? 4 : 2;
+      int32 idx_val = (idx_size == 4) ? (int32)REG_D[idx_reg] : (int16)(REG_D[idx_reg] & 0xFFFF);
+      int8 disp = (int8)(ext & 0xFF);
+      uint32 ea = REG_A[reg] + disp + idx_val;
+      m68ki_write_8(ea, v);
+      break;
+    }
   default:
     {
-      // unimplemented see fpu_uae.cpp around line 1300
       fatalerror("040fpu0: fscc: mode %d not implemented at %08X\n", mode, REG_PC-4);
     }
     }
