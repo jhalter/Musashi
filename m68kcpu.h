@@ -1929,9 +1929,21 @@ static inline void m68ki_exception_privilege_violation(void)
 	USE_CYCLES(CYC_EXCEPTION[EXCEPTION_PRIVILEGE_VIOLATION] - CYC_INSTRUCTION[REG_IR]);
 }
 
+/* setjmp() on Mac OS X and *BSD saves and restores the signal mask via
+ * syscalls (sigprocmask/sigaltstack), which is super-slow for something
+ * armed once per m68k_execute() call — use sigsetjmp(buf, 0) to tell it
+ * not to (same treatment as m68ki_aerr_trap above). */
+#ifdef _BSD_SETJMP_H
+extern sigjmp_buf m68ki_bus_error_jmp_buf;
+
+#define m68ki_check_bus_error_trap() sigsetjmp(m68ki_bus_error_jmp_buf, 0)
+#define m68ki_throw_bus_error() siglongjmp(m68ki_bus_error_jmp_buf, 1)
+#else
 extern jmp_buf m68ki_bus_error_jmp_buf;
 
 #define m68ki_check_bus_error_trap() setjmp(m68ki_bus_error_jmp_buf)
+#define m68ki_throw_bus_error() longjmp(m68ki_bus_error_jmp_buf, 1)
+#endif
 
 /* Exception for bus error */
 static inline void m68ki_exception_bus_error(void)
@@ -1966,7 +1978,7 @@ static inline void m68ki_exception_bus_error(void)
 
 	CPU_RUN_MODE = RUN_MODE_BERR_AERR_RESET;
 
-	longjmp(m68ki_bus_error_jmp_buf, 1);
+	m68ki_throw_bus_error();
 }
 
 extern int cpu_log_enabled;
